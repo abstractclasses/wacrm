@@ -570,7 +570,7 @@ async function processMessage(
   // (contacts, conversations). Always the admin who saved the
   // WhatsApp config; the choice is arbitrary post-017 but stable.
   configOwnerUserId: string,
-  accessToken: string
+  accessToken: string,
   phoneNumberId: string
 ) {
   const senderPhone = normalizePhone(message.from)
