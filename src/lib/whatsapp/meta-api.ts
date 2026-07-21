@@ -1042,3 +1042,38 @@ export async function downloadMedia(
   const buffer = Buffer.from(await response.arrayBuffer())
   return { buffer, contentType }
 }
+
+
+export interface TypingIndicatorArgs {
+  phoneNumberId: string
+  accessToken: string
+  /** The inbound message's Meta ID (message.id from the webhook) */
+  messageId: string
+}
+
+/**
+ * Marks the inbound message as read (blue ticks) and shows a "typing..."
+ * indicator to the customer for up to 25 seconds, or until we send a
+ * reply — whichever comes first. Best-effort: never throws, since a
+ * failed typing indicator shouldn't block the actual reply.
+ */
+export async function showTypingIndicator(args: TypingIndicatorArgs): Promise<void> {
+  const { phoneNumberId, accessToken, messageId } = args
+  try {
+    await fetch(`${META_API_BASE}/${phoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        status: 'read',
+        message_id: messageId,
+        typing_indicator: { type: 'text' },
+      }),
+    })
+  } catch (err) {
+    console.error('[typing indicator] failed:', err)
+  }
+}
